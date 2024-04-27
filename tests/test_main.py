@@ -83,6 +83,11 @@ class TestInteractiveMode:
         captured = capsys.readouterr()
         assert exit_code == 1, prettify_error(captured.out)
 
+    def test_run_debug_mode(self, capsys: CaptureFixture[str]) -> None:
+        exit_code = main.run("echo hi", "-t", "-d")
+        captured = capsys.readouterr()
+        assert exit_code == 0, prettify_error(captured.out)
+
     def test_run_timer_mode(self, capsys: CaptureFixture[str]) -> None:
         exit_code = main.run("echo hi")
         captured = capsys.readouterr()
@@ -286,6 +291,24 @@ class TestNonInteractiveMode:
                 f"{PREFIX}[exit 1] failed ✘\n",
                 f"{PREFIX}\n",
                 f"{PREFIX}Failed!\n",
+            ]
+        )
+
+    def test_run_debug_mode(self, capsys: CaptureFixture[str]) -> None:
+        exit_code = main.run("echo hi", "-n", "-t", "-d")
+        captured = capsys.readouterr()
+        assert exit_code == 0, prettify_error(captured.out)
+        assert captured.out.splitlines(keepends=True) == (
+            [
+                f"{PREFIX}DEBUG log: debug.log\n",
+                f"{PREFIX}\n",
+                f"{PREFIX}Running commands...\n",
+                f"{PREFIX}\n",
+                f"{PREFIX}[echo hi] running... \n",
+                f"{PREFIX}hi\n",
+                f"{PREFIX}[echo hi] done ✔\n",
+                f"{PREFIX}\n",
+                f"{PREFIX}Done!\n",
             ]
         )
 

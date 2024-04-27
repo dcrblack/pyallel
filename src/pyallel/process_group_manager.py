@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import signal
+import sys
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -12,12 +13,19 @@ from pyallel.process_group import ProcessGroup
 class ProcessGroupManager:
     process_groups: list[ProcessGroup]
     interactive: bool = False
+    debug: bool = False
     colours: Colours = field(default_factory=Colours)
 
     def stream(self) -> int:
         exit_code = 0
 
         if not self.interactive:
+            if self.debug:
+                print(
+                    f"{self.colours.dim_on}DEBUG mode{self.colours.dim_off}\n",
+                    flush=True,
+                    file=sys.stderr,
+                )
             print(
                 f"{self.colours.dim_on}=>{self.colours.dim_off} {self.colours.white_bold}Running commands...{self.colours.reset_colour}\n{self.colours.dim_on}=>{self.colours.dim_off} ",
                 flush=True,
@@ -39,6 +47,7 @@ class ProcessGroupManager:
         cls,
         *args: str,
         colours: Colours | None = None,
+        debug: bool = False,
         interactive: bool = False,
         timer: bool = False,
     ) -> ProcessGroupManager:
@@ -54,6 +63,7 @@ class ProcessGroupManager:
                         ProcessGroup.from_commands(
                             args[0],
                             colours=colours,
+                            debug=debug,
                             interactive=interactive,
                             timer=timer,
                         )
@@ -63,6 +73,7 @@ class ProcessGroupManager:
                         ProcessGroup.from_commands(
                             *commands[last_separator_index:],
                             colours=colours,
+                            debug=debug,
                             interactive=interactive,
                             timer=timer,
                         )
@@ -80,13 +91,17 @@ class ProcessGroupManager:
             ProcessGroup.from_commands(
                 *commands[last_separator_index:],
                 colours=colours,
+                debug=debug,
                 interactive=interactive,
                 timer=timer,
             )
         )
 
         process_group_manager = cls(
-            process_groups=process_groups, interactive=interactive, colours=colours
+            process_groups=process_groups,
+            debug=debug,
+            interactive=interactive,
+            colours=colours,
         )
 
         signal.signal(signal.SIGINT, process_group_manager.handle_signal)

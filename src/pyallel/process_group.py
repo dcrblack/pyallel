@@ -36,6 +36,7 @@ def format_time_taken(time_taken: float) -> str:
 @dataclass
 class ProcessGroup:
     processes: list[Process]
+    debug: bool = False
     interactive: bool = False
     timer: bool = False
     output: dict[int, list[str]] = field(default_factory=lambda: defaultdict(list))
@@ -227,6 +228,7 @@ class ProcessGroup:
         cls,
         *commands: str,
         colours: Colours | None = None,
+        debug: bool = False,
         interactive: bool = False,
         timer: bool = False,
     ) -> ProcessGroup:
@@ -245,6 +247,7 @@ class ProcessGroup:
 
         process_group = cls(
             processes=processes,
+            debug=debug,
             interactive=interactive,
             timer=timer,
             colours=colours,

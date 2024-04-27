@@ -7,6 +7,7 @@ from typing import Literal
 class Arguments:
     colour: Literal["yes", "no", "auto"]
     commands: list[str]
+    debug: bool
     interactive: bool
     timer: bool
     version: bool
@@ -52,6 +53,14 @@ def create_parser() -> ArgumentParser:
         "commands",
         help=COMMANDS_HELP,
         nargs="*",
+    )
+    parser.add_argument(
+        "-d",
+        "--debug",
+        dest="debug",
+        help="output debug info to a debug.log file",
+        action="store_true",
+        default=False,
     )
     parser.add_argument(
         "-t",

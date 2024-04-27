@@ -14,12 +14,14 @@ from pyallel.process_group_manager import ProcessGroupManager
 def main_loop(
     *args: str,
     colours: Colours,
+    debug: bool = False,
     interactive: bool = False,
     timer: bool = False,
 ) -> int:
     process_group_manager = ProcessGroupManager.from_args(
         *args,
         colours=colours,
+        debug=debug,
         interactive=interactive,
         timer=timer,
     )
@@ -53,6 +55,7 @@ def run(*args: str) -> int:
         exit_code = main_loop(
             *parsed_args.commands,
             colours=colours,
+            debug=parsed_args.debug,
             interactive=interactive,
             timer=parsed_args.timer,
         )
