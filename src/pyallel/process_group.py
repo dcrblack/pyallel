@@ -257,7 +257,13 @@ class ProcessGroup:
 
     def complete_output(self, all: bool = False) -> str:
         num_processes = len(self.processes)
-        lines = constants.LINES() - (2 * num_processes)
+        rows = constants.LINES()
+
+        if self.debug:
+            lines = rows - (2 * num_processes) - 8
+        else:
+            lines = rows - (2 * num_processes)
+
         remainder = lines % num_processes
         tail = lines // num_processes
         for i in range(num_processes):
@@ -294,15 +300,28 @@ class ProcessGroup:
             process_output = self.output[process.id][0]
             if process_output:
                 if not all:
-                    process_output = "\n".join(
-                        process_output.splitlines()[-self.process_lines[i - 1] :]
-                    )
-                    process_output += "\n"
+                    process_output_lines = process_output.splitlines()[
+                        -self.process_lines[i - 1] :
+                    ]
+                    process_output = ""
+                    for line in process_output_lines:
+                        if len(line) + 3 > constants.COLUMNS():
+                            process_output += (
+                                f"{''.join(line[:constants.COLUMNS()-3])}\n"
+                            )
+                        else:
+                            process_output += line + "\n"
                 output += self._prefix(process_output)
                 if output and output[-1] != "\n":
                     output += "\n"
                 if i != num_processes:
                     output += "\n"
+
+        if self.debug:
+            output = (
+                f"DEBUG:\nrows: {rows}\ncolumns = {constants.COLUMNS()}\nlines = {constants.LINES()}\nprocess_lines = {self.process_lines}\n\n"
+                + output
+            )
 
         if self.interrupt_count == 0:
             return output
