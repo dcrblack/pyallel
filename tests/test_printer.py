@@ -64,9 +64,9 @@ def test_set_process_lines() -> None:
 @pytest.mark.parametrize(
     "lines,expected_lines1,expected_lines2,expected_lines3",
     (
-        pytest.param(59, 19, 19, 21, id="59 lines shared between 3 processes"),
-        pytest.param(50, 16, 16, 18, id="50 lines shared between 3 processes"),
-        pytest.param(31, 10, 10, 11, id="31 lines shared between 3 processes"),
+        pytest.param(59, 53, 3, 3, id="59 lines shared between 3 processes"),
+        pytest.param(50, 44, 3, 3, id="50 lines shared between 3 processes"),
+        pytest.param(31, 25, 3, 3, id="31 lines shared between 3 processes"),
     ),
 )
 def test_set_process_lines_shares_lines_across_processes(
@@ -75,9 +75,21 @@ def test_set_process_lines_shares_lines_across_processes(
     output = ProcessGroupOutput(
         id=1,
         processes=[
-            ProcessOutput(id=1, process=Process(1, "echo first; echo second")),
-            ProcessOutput(id=2, process=Process(2, "echo first; echo second")),
-            ProcessOutput(id=3, process=Process(3, "echo first; echo second")),
+            ProcessOutput(
+                id=1,
+                process=Process(1, "echo first; echo second"),
+                data="first\nsecond",
+            ),
+            ProcessOutput(
+                id=2,
+                process=Process(2, "echo first; echo second"),
+                data="first\nsecond",
+            ),
+            ProcessOutput(
+                id=3,
+                process=Process(3, "echo first; echo second"),
+                data="first\nsecond",
+            ),
         ],
     )
 
@@ -117,19 +129,9 @@ def test_set_process_lines_shares_lines_across_many_more_processes() -> None:
             id="59 lines shared between 3 processes with remainder given to process with most lines",
         ),
         pytest.param(
-            59,
-            0.4,
-            0.2,
-            0.0,
-            23,
-            11,
-            25,
-            id="59 lines shared between 3 processes with remainder given to last process",
+            59, 1.0, 0.0, 0.0, 59, 0, 0, id="All lines given to first process"
         ),
-        pytest.param(59, 1.0, 0.0, 0.0, 59, 0, 0, id="59 lines given to first process"),
-        pytest.param(
-            59, 0.5, 0.0, 0.0, 29, 15, 15, id="59 lines given to first process"
-        ),
+        pytest.param(59, 0.5, 0.0, 0.0, 57, 1, 1, id="57 lines given to first process"),
     ),
 )
 def test_set_process_lines_with_fixed_and_dynamic_lines(

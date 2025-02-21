@@ -13,10 +13,12 @@ class ProcessOutput:
     def __init__(self, id: int, process: Process, data: str = "") -> None:
         self.id = id
         self.data = data
+        self.lines = len(data.splitlines()) + 1
         self.process = process
 
     def merge(self, other: ProcessOutput) -> None:
         self.data += other.data
+        self.lines += len(other.data.splitlines())
 
 
 class Process:
